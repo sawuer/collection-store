@@ -4,57 +4,59 @@
   const store = {};
 
   function idGen () {
-    return '_id' + (Math.random() + '').substring(2, 15)
+    return 'id_' + (Math.random() + '').substring(2, 16)
   }
 
-  function addProp (path, key, val, hist, idx=0) {
+  function addNode (path, key, hist, idx=0) {
     if (idx < path.length) {
       if (!hist.hasOwnProperty(path[idx])) hist[path[idx]] = {};
-      addProp(path, key, val, hist[path[idx]], ++idx)
-    } else {
-      hist[key] = val;
+      addNode(path, key, hist[path[idx]], ++idx)
     }
     return hist;
   }
 
-  function pushItem (path, item, hist, idx=0) {
+  function push (path, item, hist, idx=0) {
     if (idx < path.length) {
-      pushItem(path, item, hist[path[idx]], ++idx);
+      push(path, item, hist[path[idx]], ++idx);
     } else {
-      item['_id'] = idGen();
-      hist.push(item);
+      hist[idGen()] = item;
     }
     return hist;
   }
   
 
   context.App.Module = {
-    addProp:  (path, key, val) => addProp(path, key, val, store),
-    pushItem: (path, item) => pushItem (path, item, store),
-    getAll:   () => store,
+    addNode: (path, key) => addNode(path, key, store),
+    push:    (path, item) => push(path, item, store),
+    read:    () => store,
   }
 
 })(this);
 
 
+var users = [
+  { name: 'Sowyer', age: 22 },
+  { name: 'Ramona', age: 25 },
+  { name: 'Linker', age: 20 }
+];
 
 
 
-App.Module.addProp(['data'], 'users', []);
 
-App.Module.pushItem(['data', 'users'], {
-  name: 'Sowyer',
-  age: 22
+
+App.Module.addNode(['data', 'users']);
+App.Module.addNode(['data', 'news']);
+
+
+
+users.forEach(i => {
+  App.Module.push(['data', 'users'], i);
 });
-App.Module.pushItem(['data', 'users'], {
-  name: 'Ramona',
-  age: 22
-});
 
 
-console.log(App.Module.getAll());
 
 
+console.log(App.Module.read());
 
 
 
