@@ -3,6 +3,10 @@
 
   const store = {};
 
+  function idGen () {
+    return '_id' + (Math.random() + '').substring(2, 15)
+  }
+
   function addProp (path, key, val, hist, idx=0) {
     if (idx < path.length) {
       if (!hist.hasOwnProperty(path[idx])) hist[path[idx]] = {};
@@ -14,16 +18,20 @@
   }
 
   function pushItem (path, item, hist, idx=0) {
-    if (idx < path.length) pushItem(path, item, hist[path[idx]], ++idx)
-    else hist.push(item);
+    if (idx < path.length) {
+      pushItem(path, item, hist[path[idx]], ++idx);
+    } else {
+      item['_id'] = idGen();
+      hist.push(item);
+    }
     return hist;
   }
   
 
   context.App.Module = {
-    addProp: (path, key, val) => addProp(path, key, val, store),
+    addProp:  (path, key, val) => addProp(path, key, val, store),
     pushItem: (path, item) => pushItem (path, item, store),
-    getAll: () => store,
+    getAll:   () => store,
   }
 
 })(this);
@@ -32,15 +40,24 @@
 
 
 
-App.Module.addProp([1, 2, 3], 'key3', 'val');
-App.Module.addProp([1, 2, 3, 4], 'key4', 'val');
-App.Module.addProp([1, 2, 3, 4], 'key4_1', 'val');
-App.Module.addProp([1, 2, 3, 4], 'key4_2', 'val');
-App.Module.addProp([1, 2], 'key2', []);
+App.Module.addProp(['data'], 'users', []);
 
-App.Module.pushItem([1, 2, 'key2'], {
-  name: 'sow',
+App.Module.pushItem(['data', 'users'], {
+  name: 'Sowyer',
+  age: 22
+});
+App.Module.pushItem(['data', 'users'], {
+  name: 'Ramona',
   age: 22
 });
 
+
 console.log(App.Module.getAll());
+
+
+
+
+
+
+
+
