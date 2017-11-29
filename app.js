@@ -3,6 +3,10 @@
 
   const store = {};
 
+  function parsePath (str) {
+    return str.split('.');
+  }
+
   function idGen () {
     return 'id_' + (Math.random() + '').substring(2, 16)
   }
@@ -16,13 +20,12 @@
     }
     return hist;
   }
-  var an = 0;
 
   function push (path, item, hist, idx=0) {
     if (idx < path.length) {
       push(path, item, hist[path[idx]], ++idx);
     } else {
-      hist[an++] = item;
+      hist[idGen()] = item;
     }
     return hist;
   }
@@ -46,10 +49,10 @@
   
 
   context.App.Module = {
-    addNode: (path, key) => addNode(path, key, store),
-    push:    (path, item) => push(path, item, store),
-    update:  (path, val) => update(path, val, store),
-    remove:  (path, val) => remove(path, store),
+    addNode: (path, key)  => addNode(parsePath(path), key, store),
+    push:    (path, item) => push(parsePath(path), item, store),
+    update:  (path, val)  => update(parsePath(path), val, store),
+    remove:  (path, val)  => remove(parsePath(path), store),
     read:    () => store,
   }
 
@@ -59,27 +62,21 @@
 var users = [
   { name: 'Sowyer', age: 22 },
   { name: 'Ramona', age: 25 },
-  { name: 'Linker', age: 20 }
 ];
 
 
 
 
 
-App.Module.addNode(['data', 'users']);
-App.Module.addNode(['data', 'news']);
-App.Module.addNode(['data', 'news', 'politics']);
-App.Module.addNode(['data', 'news', 'dsfsdf']);
+App.Module.addNode('data.users');
 
 
 
-users.forEach(i => {
-  App.Module.push(['data', 'users'], i);
-});
+users.forEach(i => App.Module.push('data.users', i));
 
-App.Module.update(['data', 'users', '2', 'name'], 'Another');
-App.Module.remove(['data', 'users', '1']);
-App.Module.remove(['data', 'users', '0']);
+// App.Module.remove(`data.users.1`);
+// App.Module.update(`data.users.0.name`, 'Linker');
+
 
 // console.log(App.Module.read().data.users[0].name);
 console.log(App.Module.read());
